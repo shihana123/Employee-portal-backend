@@ -15,7 +15,9 @@ class EmployeeController extends Controller
     public function index()
     {
         // Get all employees with their associated users and departments
-        $employees = Employee::with('user', 'department')->get();
+        $employees = Employee::whereHas('user', function ($query) {
+            $query->where('status', 1);
+        })->with('user', 'department')->get();
 
         // Loop through the employees and access user and department information
         foreach ($employees as $employee) {
@@ -49,7 +51,8 @@ class EmployeeController extends Controller
             'address' => 'required',
             'email' => 'required|email',
             'dob' => 'required|date',
-            'education' => 'required'
+            'education' => 'required',
+            'joining_date' => 'required|date'
         ]);
         if (User::where('email', $request->email)->exists()) {
             return response()->json([
@@ -76,9 +79,10 @@ class EmployeeController extends Controller
                 'department_id' => $request->department_id,
                 'address' => $request->address,
                 'dob' => $request->dob,
-                'education' => $request->education
+                'education' => $request->education,
+                'joining_date' => $request->joining_date
             ];
-            
+            // return $employee_data;
             if($employees = Employee::create($employee_data))
             {
                 return response()->json([
@@ -111,7 +115,12 @@ class EmployeeController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $employees = Employee::with('user', 'department')->find($id);
+        // foreach ($employees as $employee) {
+            $user = $employees->user;
+            $department = $employees->department;
+        // }
+        return response()->json($employees);
     }
 
     /**
@@ -119,7 +128,13 @@ class EmployeeController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $employees = Employee::with('user', 'department')->find($id);
+        // foreach ($employees as $employee) {
+            $user = $employees->user;
+            $department = $employees->department;
+        // }
+
+        return response()->json($employees);
     }
 
     /**
@@ -127,7 +142,48 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+       
+        $request->validate([
+            'firstname' => 'required',
+            'lastname' => 'required',
+            'gender' => 'required',
+            'mobile_no' => 'required|numeric',
+            'designation' => 'required',
+            'department_id' => 'required',
+            'address' => 'required',
+            'dob' => 'required|date',
+            'education' => 'required',
+            'joining_date' => 'required|date'
+        ]);
+        $employee_data = [
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'gender' => $request->gender,
+            'mobile_no' => $request->mobile_no,
+            'designation' => $request->designation,
+            'department_id' => $request->department_id,
+            'address' => $request->address,
+            'dob' => $request->dob,
+            'education' => $request->education,
+            'joining_date' => $request->joining_date
+        ];
+        $employee = Employee::find($id);
+        
+        if($employee->update($employee_data))
+        {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully Updates Employee',
+            ]);
+        }
+
+        else
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong',
+            ]);
+        }
     }
 
     /**
@@ -135,6 +191,28 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $employee_data = [
+            'status' => 0
+        ];
+        $employee = Employee::find($id);
+        $user_id = $employee->user_id;
+
+        $user = User::find($user_id);
+        
+        if($user->update($employee_data))
+        {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully Updates Employee',
+            ]);
+        }
+
+        else
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong',
+            ]);
+        }
     }
 }
