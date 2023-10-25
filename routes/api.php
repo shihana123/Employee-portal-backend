@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\EmployeeController;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ Route::controller(CommonController::class)->group(function () {
 });
 
 Route::resource('employees', EmployeeController::class);
+Route::resource('clients', ClientController::class);
 
 
 

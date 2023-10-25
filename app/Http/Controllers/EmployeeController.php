@@ -72,9 +72,10 @@ class EmployeeController extends Controller
         if($users = User::create($user_data))
         {
             $user_id = $users->id;
-
+            $employee_id = "EM00".$user_id;
             $employee_data = [
                 'user_id' => $user_id,
+                "employee_id" => $employee_id,
                 'firstname' => $request->firstname,
                 'lastname' => $request->lastname,
                 'gender' => $request->gender,
