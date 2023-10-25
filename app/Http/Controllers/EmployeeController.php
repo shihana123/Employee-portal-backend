@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\Employee_createMail;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+
+
 
 class EmployeeController extends Controller
 {
@@ -85,6 +89,16 @@ class EmployeeController extends Controller
             // return $employee_data;
             if($employees = Employee::create($employee_data))
             {
+                //sending email 
+                $name = $request->firstname.' '.$request->lastname;
+                $mailData = [
+                    'name' => $name,
+                    'username' => $request->email,
+                    'password' => $request->password
+                ];
+                 
+                Mail::to($request->email)->send(new Employee_createMail($mailData));
+
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Successfully Created one Employee',
